@@ -30,7 +30,7 @@ class Data(Base):
     
     # 分类信息
     tags = Column(JSON, default=list, nullable=True)  # 标签列表
-    metadata = Column(JSON, default=dict, nullable=True)  # 元数据
+    data_metadata = Column(JSON, default=dict, nullable=True)  # 元数据
     
     # 状态
     is_revoked = Column(Boolean, default=False, nullable=False)

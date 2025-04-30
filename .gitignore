@@ -24,7 +24,7 @@ wheels/
 venv/
 env/
 ENV/
-.env
+
 
 # 日志
 logs/

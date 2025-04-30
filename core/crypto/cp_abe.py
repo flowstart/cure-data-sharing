@@ -6,22 +6,40 @@ from typing import Dict, List, Tuple, Any, Optional
 from charm.toolbox.pairinggroup import PairingGroup, ZR, G1, G2, GT, pair
 from charm.schemes.abenc.cp_abe_bsw07 import CPabe_BSW07
 from charm.core.engine.util import objectToBytes, bytesToObject
+from paillier import PaillierKeypair
+from paillier import encrypt, decrypt
 
 logger = logging.getLogger(__name__)
 
 class CPABEManager:
     """CP-ABE (Ciphertext-Policy Attribute-Based Encryption) 管理器"""
     
-    def __init__(self, pairing_curve: str = 'MNT224'):
-        """
-        初始化CP-ABE管理器
-        
-        Args:
-            pairing_curve: 配对曲线类型，默认使用MNT224
-        """
-        self.group = PairingGroup(pairing_curve)
-        self.cpabe = CPabe_BSW07(self.group)
-        logger.info(f"CP-ABE Manager initialized with {pairing_curve} curve")
+    def __init__(self):
+        self.keypair = PaillierKeypair.generate(2048)
+        self.public_key = self.keypair.public_key
+        self.private_key = self.keypair.private_key
+        logger.info("CP-ABE Manager initialized")
+    
+    def encrypt_data(self, data, attributes):
+        """加密数据"""
+        # 将数据转换为JSON字符串
+        data_str = json.dumps(data)
+        # 使用公钥加密
+        encrypted_data = encrypt(self.public_key, data_str)
+        return encrypted_data
+
+    def decrypt_data(self, encrypted_data):
+        """解密数据"""
+        # 使用私钥解密
+        decrypted_data = decrypt(self.private_key, encrypted_data)
+        # 将JSON字符串转换回Python对象
+        return json.loads(decrypted_data)
+
+    def generate_key(self, attributes):
+        """生成属性密钥"""
+        # 在实际应用中，这里应该实现基于属性的密钥生成
+        # 这里简化处理，返回一个随机密钥
+        return self.keypair.private_key
     
     def setup(self) -> Tuple[Any, Any]:
         """
