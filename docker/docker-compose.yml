@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  # 应用服务
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: secure-data-sharing-app
+    restart: unless-stopped
+    depends_on:
+      - db
+      - ipfs
+      - ganache
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/secure_data_sharing
+      - DEBUG=true
+      - ETHEREUM_NODE_URL=http://ganache:8545
+      - IPFS_API_URL=http://ipfs:5001
+      - IPFS_GATEWAY_URL=http://localhost:8080
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../:/app
+      - app_data:/app/data
+      - app_keys:/app/keys
+    networks:
+      - secure-data-sharing-network
+
+  # 数据库服务
+  db:
+    image: postgres:14-alpine
+    container_name: secure-data-sharing-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=secure_data_sharing
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - secure-data-sharing-network
+
+  # IPFS 服务
+  ipfs:
+    image: ipfs/kubo:latest
+    container_name: secure-data-sharing-ipfs
+    restart: unless-stopped
+    environment:
+      - IPFS_PROFILE=server
+      - IPFS_PATH=/data/ipfs
+    ports:
+      - "4001:4001"
+      - "4001:4001/udp"
+      - "8080:8080"
+      - "5001:5001"
+    volumes:
+      - ipfs_data:/data/ipfs
+    networks:
+      - secure-data-sharing-network
+
+  # 以太坊测试网络
+  ganache:
+    image: trufflesuite/ganache:latest
+    container_name: secure-data-sharing-ganache
+    restart: unless-stopped
+    ports:
+      - "8545:8545"
+    volumes:
+      - ganache_data:/data
+    command:
+      - "--deterministic"
+      - "--db=/data"
+      - "--mnemonic=sphere flight whale barrel marine gown stock canoe vessel measure invite witness"
+      - "--gasLimit=8000000"
+    networks:
+      - secure-data-sharing-network
+
+  # PGAdmin (可选)
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: secure-data-sharing-pgadmin
+    restart: unless-stopped
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - db
+    networks:
+      - secure-data-sharing-network
+
+networks:
+  secure-data-sharing-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  ipfs_data:
+  ganache_data:
+  pgadmin_data:
+  app_data:
+  app_keys:

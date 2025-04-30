@@ -1,0 +1,43 @@
+# Web框架
+fastapi
+uvicorn==0.22.0
+pydantic
+pydantic-settings
+python-dotenv==1.0.0
+python-multipart==0.0.6
+email-validator==2.0.0.post2
+
+# 安全认证
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# 数据库
+sqlalchemy
+alembic==1.10.4
+psycopg2-binary==2.9.6
+databases[postgresql]==0.7.0
+
+# 区块链
+web3==6.0.0
+eth-account==0.8.0
+
+# CP-ABE
+# charm-crypto==0.43
+# pycrypto==2.6.1
+pycryptodome
+
+# IPFS
+ipfshttpclient==0.8.0a2
+multiaddr==0.0.9
+
+# 工具
+requests==2.30.0
+aiofiles==23.1.0
+loguru==0.7.0
+tenacity==8.2.2
+boto3==1.26.135  # 可选，用于S3存储
+
+# 测试
+pytest==7.3.1
+pytest-asyncio==0.21.0
+httpx==0.24.0
